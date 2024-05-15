@@ -1,18 +1,22 @@
 class Grafo:
     def __init__(self):
-        self.vertices = {}  # Un diccionario para almacenar los vértices y sus conexiones
+        # Inicializa el grafo con un diccionario vacío para almacenar los vértices y sus conexiones.
+        self.vertices = {}
 
     def agregar_vertice(self, nombre):
+        # Agrega un vértice al grafo si no existe.
         if nombre not in self.vertices:
-            self.vertices[nombre] = {}  # Agregar un nuevo vértice al grafo si no existe
+            self.vertices[nombre] = {}
 
     def agregar_arista(self, origen, destino, peso):
-        self.agregar_vertice(origen)  # Agregar los vértices si no existen
+        # Agrega una arista entre dos vértices con un peso dado.
+        # Si los vértices no existen, los agrega primero.
+        self.agregar_vertice(origen)
         self.agregar_vertice(destino)
-        self.vertices[origen][destino] = peso  # Agregar una conexión con su peso correspondiente
+        self.vertices[origen][destino] = peso
 
     def floyd_warshall(self):
-        # Algoritmo de Floyd-Warshall para encontrar las distancias más cortas entre todos los pares de vértices
+        # Implementa el algoritmo de Floyd-Warshall para encontrar las distancias más cortas entre todos los pares de vértices.
         distancias = {v: {w: float('inf') if v != w else 0 for w in self.vertices} for v in self.vertices}
         for intermedio in self.vertices:
             for inicio in self.vertices:
@@ -23,12 +27,12 @@ class Grafo:
         return distancias
 
     def obtener_centro_grafo(self, distancias):
-        # Método para encontrar el vértice que queda en el centro del grafo basado en las distancias
+        # Determina el vértice central del grafo basado en las distancias calculadas por Floyd-Warshall.
         centros = {v: max(distancias[v].values()) for v in distancias}
         return min(centros, key=centros.get)
 
     def interrumpir_trafico(self, ciudad1, ciudad2):
-        # Método para interrumpir el tráfico entre dos ciudades
+        # Elimina la conexión entre dos ciudades si existe.
         if ciudad1 in self.vertices and ciudad2 in self.vertices:
             if ciudad2 in self.vertices[ciudad1]:
                 del self.vertices[ciudad1][ciudad2]
@@ -39,7 +43,7 @@ class Grafo:
             print("Al menos una de las ciudades no está en el grafo.")
 
     def establecer_conexion(self, ciudad1, ciudad2, tiempo_normal):
-        # Método para establecer una nueva conexión entre dos ciudades
+        # Establece una conexión entre dos ciudades con un tiempo normal dado.
         if ciudad1 in self.vertices and ciudad2 in self.vertices:
             self.vertices[ciudad1][ciudad2] = tiempo_normal
             print(f"Se ha establecido una conexión entre {ciudad1} y {ciudad2} con tiempo normal {tiempo_normal}.")
@@ -47,7 +51,7 @@ class Grafo:
             print("Al menos una de las ciudades no está en el grafo.")
 
     def modificar_clima(self, ciudad1, ciudad2, clima, tiempo):
-        # Método para modificar el tiempo de viaje entre dos ciudades debido al clima
+        # Modifica el tiempo de viaje entre dos ciudades dadas ciertas condiciones climáticas.
         if ciudad1 in self.vertices and ciudad2 in self.vertices:
             if ciudad2 in self.vertices[ciudad1]:
                 self.vertices[ciudad1][ciudad2] = tiempo
@@ -58,7 +62,7 @@ class Grafo:
             print("Al menos una de las ciudades no está en el grafo.")
 
     def mostrar_matriz_adyacencia(self):
-        # Método para mostrar la matriz de adyacencia del grafo
+        # Muestra la matriz de adyacencia del grafo.
         print("Matriz de Adyacencia:")
         for ciudad1 in self.vertices:
             for ciudad2 in self.vertices:
@@ -70,18 +74,23 @@ class Grafo:
 
 
 def leer_archivo(nombre_archivo):
-    # Función para leer el archivo de entrada y construir el grafo a partir de él
+    # Lee un archivo que contiene información sobre las conexiones entre ciudades y crea un grafo a partir de esta información.
     grafo = Grafo()
-    with open(nombre_archivo, 'r') as archivo:
-        next(archivo)  # Saltar la primera línea que contiene los encabezados
-        for linea in archivo:
-            ciudad1, ciudad2, tiempo_normal, _, _, _ = linea.split()
-            grafo.agregar_arista(ciudad1, ciudad2, int(tiempo_normal))
+    try:
+        with open(nombre_archivo, 'r') as archivo:
+            next(archivo)  # Saltar la primera línea que contiene los encabezados
+            for linea in archivo:
+                ciudad1, ciudad2, tiempo_normal, _, _, _ = linea.split()
+                grafo.agregar_arista(ciudad1, ciudad2, int(tiempo_normal))
+    except FileNotFoundError:
+        print(f"El archivo '{nombre_archivo}' no fue encontrado.")
+    except ValueError:
+        print("Error al leer el archivo. Asegúrate de que esté en el formato correcto.")
     return grafo
 
 
 def calcular_ruta_mas_corta(grafo, origen, destino, distancias):
-    # Función para calcular la ruta más corta entre dos ciudades utilizando el algoritmo de Floyd-Warshall
+    # Calcula la distancia más corta entre dos ciudades utilizando las distancias previamente calculadas por el algoritmo de Floyd-Warshall.
     if origen in grafo.vertices and destino in grafo.vertices:
         distancia = distancias[origen][destino]
         print(f"La distancia más corta entre {origen} y {destino} es: {distancia}")
@@ -91,10 +100,13 @@ def calcular_ruta_mas_corta(grafo, origen, destino, distancias):
 
 def main():
     grafo = leer_archivo('logistica.txt')
+    if not grafo.vertices:
+        print("No se pudo construir el grafo correctamente. Verifica el archivo de entrada.")
+        return
+
     distancias = grafo.floyd_warshall()
 
     while True:
-        # Menú de opciones para el usuario
         print("\nOpciones:")
         print("1. Calcular ruta más corta entre dos ciudades.")
         print("2. Indicar la ciudad que queda en el centro del grafo.")
@@ -138,8 +150,6 @@ def main():
             break
         else:
             print("Opción no válida. Por favor, ingrese un número válido.")
-
-        grafo.mostrar_matriz_adyacencia()
 
 
 if __name__ == "__main__":
