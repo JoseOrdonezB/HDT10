@@ -29,6 +29,33 @@ class Grafo:
         centros = {v: max(distancias[v].values()) for v in distancias}
         return min(centros, key=centros.get)
 
+    def interrumpir_trafico(self, ciudad1, ciudad2):
+        if ciudad1 in self.vertices and ciudad2 in self.vertices:
+            if ciudad2 in self.vertices[ciudad1]:
+                del self.vertices[ciudad1][ciudad2]
+                print(f"Se ha interrumpido el tráfico entre {ciudad1} y {ciudad2}.")
+            else:
+                print(f"No hay conexión entre {ciudad1} y {ciudad2}.")
+        else:
+            print("Al menos una de las ciudades no está en el grafo.")
+
+    def establecer_conexion(self, ciudad1, ciudad2, tiempo_normal):
+        if ciudad1 in self.vertices and ciudad2 in self.vertices:
+            self.vertices[ciudad1][ciudad2] = tiempo_normal
+            print(f"Se ha establecido una conexión entre {ciudad1} y {ciudad2} con tiempo normal {tiempo_normal}.")
+        else:
+            print("Al menos una de las ciudades no está en el grafo.")
+
+    def modificar_clima(self, ciudad1, ciudad2, clima, tiempo):
+        if ciudad1 in self.vertices and ciudad2 in self.vertices:
+            if ciudad2 in self.vertices[ciudad1]:
+                self.vertices[ciudad1][ciudad2] = tiempo
+                print(f"Se ha modificado el tiempo de viaje entre {ciudad1} y {ciudad2} con clima {clima} a {tiempo}.")
+            else:
+                print(f"No hay conexión entre {ciudad1} y {ciudad2}.")
+        else:
+            print("Al menos una de las ciudades no está en el grafo.")
+
 
 def leer_archivo(nombre_archivo):
     grafo = Grafo()
@@ -69,8 +96,28 @@ def main():
             centro = grafo.obtener_centro_grafo(distancias)
             print("El centro del grafo es la ciudad:", centro)
         elif opcion == "3":
-            # Implementar la lógica para modificar el grafo
-            pass
+            print("\nOpciones de modificación:")
+            print("a. Interrumpir tráfico entre un par de ciudades.")
+            print("b. Establecer conexión entre ciudad1 y ciudad2.")
+            print("c. Modificar clima entre un par de ciudades.")
+            modificacion = input("Ingrese la letra correspondiente a la opción de modificación deseada: ")
+            if modificacion == "a":
+                ciudad1 = input("Ingrese la ciudad 1: ")
+                ciudad2 = input("Ingrese la ciudad 2: ")
+                grafo.interrumpir_trafico(ciudad1, ciudad2)
+            elif modificacion == "b":
+                ciudad1 = input("Ingrese la ciudad 1: ")
+                ciudad2 = input("Ingrese la ciudad 2: ")
+                tiempo_normal = int(input("Ingrese el tiempo normal de conexión: "))
+                grafo.establecer_conexion(ciudad1, ciudad2, tiempo_normal)
+            elif modificacion == "c":
+                ciudad1 = input("Ingrese la ciudad 1: ")
+                ciudad2 = input("Ingrese la ciudad 2: ")
+                clima = input("Ingrese el clima (normal, lluvia, nieve o tormenta): ")
+                tiempo = int(input("Ingrese el tiempo de conexión para este clima: "))
+                grafo.modificar_clima(ciudad1, ciudad2, clima, tiempo)
+            else:
+                print("Opción no válida.")
         elif opcion == "4":
             print("Programa finalizado.")
             break
